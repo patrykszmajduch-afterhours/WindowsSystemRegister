@@ -33,16 +33,13 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AppSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CRejestr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RejestrFunkcje.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource1.h">
+    <ClInclude Include="Helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,18 +53,15 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AppSettings.cpp">
+    <ClCompile Include="CRejestr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CRejestr.cpp">
+    <ClCompile Include="Helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WindowsSystemRegister.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-    <ResourceCompile Include="AddWindow.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

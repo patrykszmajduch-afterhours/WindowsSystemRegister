@@ -8,6 +8,7 @@
 #include <cstring>
 #include <cstring>
 #include <string>
+#include "Helper.h"
 
 
 // CWindowsSystemRegisterDlg dialog
@@ -29,6 +30,7 @@ public:
 // Implementation
 protected:
 	HICON m_hIcon;
+	Helper helper();
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
@@ -37,7 +39,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButton1();
-	
 	afx_msg void OnDestroy();
 	afx_msg void OnBnClickedButton4();
 	CTreeCtrl m_strTree;
@@ -62,4 +63,6 @@ public:
 	CButton deleteButton;
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton3();
+	afx_msg void OnAfxIdbMiniframeMenu();
+	afx_msg void OnTvnSelchangedTree1(NMHDR* pNMHDR, LRESULT* pResult);
 };

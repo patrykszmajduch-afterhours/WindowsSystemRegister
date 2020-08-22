@@ -1,6 +1,6 @@
 #pragma once
 #include "CRejestr.h"
-
+#include <stdexcept>
 #include <atltypes.h>
 
 #pragma region Przechowywanie po³o¿enia i rozmiaru okna
@@ -121,14 +121,9 @@ void QueryKey(HKEY hKey, CTreeCtrl &mainTree, HTREEITEM toAdd,CListCtrl &listVal
         DWORD valueType;
         DWORD cbData;
 
-        
-
-
+      
         for (i = 0, retCode = ERROR_SUCCESS; i < cValues; i++)
         {
-
-
-
 
             DWORD valueType;
             DWORD cbData = cbMaxValueData + 1;//must be plus one cause '\0' one the end
@@ -147,8 +142,6 @@ void QueryKey(HKEY hKey, CTreeCtrl &mainTree, HTREEITEM toAdd,CListCtrl &listVal
                     &valueType,
                     (LPBYTE)byteArr,
                     &cbData);
-
-
 
 
                 if (retCode == ERROR_SUCCESS)
@@ -220,3 +213,19 @@ BOOL RegDelnode(HKEY hKeyRoot, LPCTSTR lpSubKey);
 BOOL RegAddnode(HKEY hKeyRoot, LPCTSTR lpSubKey);
 
 #pragma endregion
+class RegistryError
+    : public std::runtime_error
+{
+public:
+    RegistryError(const char* message, LONG errorCode)
+        : std::runtime_error{ message }
+        , m_errorCode{ errorCode }
+    {}
+
+    LONG ErrorCode() const noexcept
+    {
+        return m_errorCode;
+    }
+private:
+    LONG m_errorCode;
+};

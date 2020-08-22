@@ -8,6 +8,7 @@
 #include "WindowsSystemRegisterDlg.h"
 #include "afxdialogex.h"
 #include "RejestrFunkcje.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -28,10 +29,10 @@ void CWindowsSystemRegisterDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TREE1, m_strTree);
 	DDX_Control(pDX, IDC_EDIT1, konsolaTextBox);
-
 	DDX_Control(pDX, IDC_LIST3, listView);
 	DDX_Control(pDX, IDC_CHECK1, CheckBox1);
 	DDX_Control(pDX, IDC_EDIT2, editBoxMainKey);
+	DDX_Control(pDX, IDC_BUTTON1, editBoxMainKey);
 	DDX_Control(pDX, IDC_BUTTON2, addButton);
 	DDX_Control(pDX, IDC_BUTTON3, deleteButton);
 }
@@ -40,16 +41,18 @@ BEGIN_MESSAGE_MAP(CWindowsSystemRegisterDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	//ON_BN_CLICKED(IDC_BUTTON1, &CWindowsSystemRegisterDlg::OnBnClickedButton1)
-//	ON_WM_DESTROY()
-ON_WM_DESTROY()
 
-ON_NOTIFY(NM_CLICK, IDC_TREE1, &CWindowsSystemRegisterDlg::OnNMClickTree1)
 
-ON_NOTIFY(NM_DBLCLK, IDC_TREE1, &CWindowsSystemRegisterDlg::OnNMDblclkTree1)
-//ON_NOTIFY(TVN_ITEMEXPANDED, IDC_TREE1, &CWindowsSystemRegisterDlg::OnTvnItemexpandedTree1)
-ON_BN_CLICKED(IDC_CHECK1, &CWindowsSystemRegisterDlg::OnBnClickedCheck1)
-ON_BN_CLICKED(IDC_BUTTON2, &CWindowsSystemRegisterDlg::OnBnClickedButton2)
-ON_BN_CLICKED(IDC_BUTTON3, &CWindowsSystemRegisterDlg::OnBnClickedButton3)
+	ON_NOTIFY(NM_CLICK, IDC_TREE1, &CWindowsSystemRegisterDlg::OnNMClickTree1)
+
+	//ON_NOTIFY(TVN_ITEMEXPANDED, IDC_TREE1, &CWindowsSystemRegisterDlg::OnTvnItemexpandedTree1)
+	ON_BN_CLICKED(IDC_CHECK1, &CWindowsSystemRegisterDlg::OnBnClickedCheck1)
+	ON_BN_CLICKED(IDC_BUTTON1, &CWindowsSystemRegisterDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CWindowsSystemRegisterDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CWindowsSystemRegisterDlg::OnBnClickedButton3)
+	ON_WM_DESTROY()
+
+	ON_COMMAND(AFX_IDB_MINIFRAME_MENU, &CWindowsSystemRegisterDlg::OnAfxIdbMiniframeMenu)
 END_MESSAGE_MAP()
 
 
@@ -58,20 +61,17 @@ END_MESSAGE_MAP()
 BOOL CWindowsSystemRegisterDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-	
+
 	if (!CzytajPolozenieIWielkoscOknaZRejestru(this->m_hWnd, L"Software\\TEST\\Okno")) { MessageBox(L"Pierwsze uruchomienie programu"); }
+
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-
 	CheckBox1.SetCheck((int)CzyIstniejeZapisAutostart(HKEY_CURRENT_USER, AfxGetAppName()));
 	konsolaTextBox.SetWindowTextW(L"ROOT");
+
 	//tu dodaje do drzewa
-	
-	// TODO: Add extra initialization here
-	
-	
 	//TODO: refactor to function init main key of register
 	m_strTree.InsertItem(L"HKEY_CLASSES_ROOT", TVI_ROOT);
 	m_strTree.InsertItem(L"HKEY_CURRENT_USER", TVI_ROOT);
@@ -85,11 +85,8 @@ BOOL CWindowsSystemRegisterDlg::OnInitDialog()
 		L"Name",         // Caption for this header
 		LVCFMT_LEFT,    // Relative position of items under header
 		100);          // Width of items under header
-
-	listView.InsertColumn(1,L"Type", LVCFMT_CENTER, 180);
+	listView.InsertColumn(1, L"Type", LVCFMT_CENTER, 180);
 	listView.InsertColumn(2, L"Data", LVCFMT_CENTER, 100);
-
-
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -133,7 +130,11 @@ HCURSOR CWindowsSystemRegisterDlg::OnQueryDragIcon()
 
 void CWindowsSystemRegisterDlg::OnBnClickedButton1()
 {
-	// TODO: Add your control notification handler code here
+	if (MessageBox(L"Do you want close application?",
+		L"System Register", MB_ICONQUESTION | MB_YESNO) == IDYES)
+		this->PostMessage(WM_CLOSE); //lepiej u¿yæ metody EndDialog
+	else this->SetWindowText(L"Zamkniêcie anulowane");
+	OutputDebugStringW(L"Test butona 1");
 }
 
 
@@ -151,26 +152,26 @@ void CWindowsSystemRegisterDlg::OnBnClickedButton4()
 	// TODO: Add your control notification handler code here
 }
 
-CString  CWindowsSystemRegisterDlg::getSelectedInTree(CString &hMain)
+CString  CWindowsSystemRegisterDlg::getSelectedInTree(CString& hMain)
 {
-	CString pathToRegister =L"";
+	CString pathToRegister = L"";
 	CString hMainKey = L"";
 
 	HTREEITEM hItem = m_strTree.GetSelectedItem();
 	do {
-		
-		if (m_strTree.GetParentItem(hItem)) 
+
+		if (m_strTree.GetParentItem(hItem))
 		{
 			CString temp = pathToRegister;
-			pathToRegister = m_strTree.GetItemText(hItem)+L"\\" + temp;
+			pathToRegister = m_strTree.GetItemText(hItem) + L"\\" + temp;
 		}
 		else
 		{
-			hMainKey= m_strTree.GetItemText(hItem);
+			hMainKey = m_strTree.GetItemText(hItem);
 		}
 
 		hItem = m_strTree.GetParentItem(hItem);
-		
+
 	} while (hItem != nullptr);
 	hItem = m_strTree.GetSelectedItem();
 	hMain = hMainKey;
@@ -182,8 +183,9 @@ CString  CWindowsSystemRegisterDlg::getSelectedInTree(CString &hMain)
 		//RegOpenKeyEx otwiera rejestr
 		if (hMain != L"")
 		{
-			if (hMain == "HKEY_CLASSES_ROOT") {
-				if (RegOpenKeyEx(HKEY_CLASSES_ROOT,
+			/*HKEY HRootKey = helper.Hr
+			if (HRootKey != NULL) {
+				if (RegOpenKeyEx(HRootKey,
 					pathToRegister,
 					0,
 					KEY_READ,
@@ -193,59 +195,7 @@ CString  CWindowsSystemRegisterDlg::getSelectedInTree(CString &hMain)
 					QueryKey(hTestKey, m_strTree, m_strTree.GetSelectedItem(), listView);
 				}
 				RegCloseKey(hTestKey);
-			}
-			else if (hMain == "HKEY_CURRENT_USER")
-			{
-				if (RegOpenKeyEx(HKEY_CURRENT_USER,
-					pathToRegister,
-					0,
-					KEY_READ,
-					&hTestKey) == ERROR_SUCCESS
-					)
-				{
-					QueryKey(hTestKey, m_strTree, m_strTree.GetSelectedItem(), listView);
-				}
-				RegCloseKey(hTestKey);
-			}
-			else if (hMain == "HKEY_LOCAL_MACHINE")
-			{
-				if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-					pathToRegister,
-					0,
-					KEY_READ,
-					&hTestKey) == ERROR_SUCCESS
-					)
-				{
-					QueryKey(hTestKey, m_strTree, m_strTree.GetSelectedItem(), listView);
-				}
-				RegCloseKey(hTestKey);
-			}
-			else if (hMain == "HKEY_USERS")
-			{
-				if (RegOpenKeyEx(HKEY_USERS,
-					pathToRegister,
-					0,
-					KEY_READ,
-					&hTestKey) == ERROR_SUCCESS
-					)
-				{
-					QueryKey(hTestKey, m_strTree, m_strTree.GetSelectedItem(), listView);
-				}
-				RegCloseKey(hTestKey);
-			}
-			else if (hMain == "HKEY_CURRENT_CONFIG")
-			{
-				if (RegOpenKeyEx(HKEY_CURRENT_CONFIG,
-					pathToRegister,
-					0,
-					KEY_READ,
-					&hTestKey) == ERROR_SUCCESS
-					)
-				{
-					QueryKey(hTestKey, m_strTree, m_strTree.GetSelectedItem(), listView);
-				}
-				RegCloseKey(hTestKey);
-			}
+			}*/
 		}
 	}
 	hPath = pathToRegister;
@@ -289,16 +239,20 @@ void CWindowsSystemRegisterDlg::OnNMDblclkTree1(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CWindowsSystemRegisterDlg::OnBnClickedCheck1()
 {
-	wchar_t sciezkaPliku[MAX_PATH]; GetModuleFileName(NULL, sciezkaPliku, MAX_PATH);   if (CheckBox1.GetCheck())      ZapiszAutostart(HKEY_CURRENT_USER, AfxGetAppName(), sciezkaPliku);   else UsunAutostart(HKEY_CURRENT_USER, AfxGetAppName());
+	wchar_t sciezkaPliku[MAX_PATH]; GetModuleFileName(NULL, sciezkaPliku, MAX_PATH);
+	if (CheckBox1.GetCheck())
+		ZapiszAutostart(HKEY_CURRENT_USER, AfxGetAppName(), sciezkaPliku);
+	else
+		UsunAutostart(HKEY_CURRENT_USER, AfxGetAppName());
 }
 
 
 void CWindowsSystemRegisterDlg::OnBnClickedButton2()
 {
-	
+
 	if (hKeyMain != L"")
 	{
-		HKEY rootKey= HKEY_CURRENT_CONFIG;
+		HKEY rootKey = HKEY_CURRENT_CONFIG;
 		if (hKeyMain == "HKEY_CLASSES_ROOT") {
 			rootKey = HKEY_CLASSES_ROOT;
 		}
@@ -314,11 +268,11 @@ void CWindowsSystemRegisterDlg::OnBnClickedButton2()
 		{
 			rootKey = HKEY_USERS;
 		}
-		
+
 		konsolaTextBox.GetWindowTextW(hPath);
 		//RegAddnode(rootKey, hPath);
-		OutputDebugStringW(L"Wartosc klucza glownego: "+hKeyMain+L" path: "+hPath + L"\n");
-		
+		OutputDebugStringW(L"Wartosc klucza glownego: " + hKeyMain + L" path: " + hPath + L"\n");
+
 	}
 
 	// TODO: Add your control notification handler code here
@@ -351,4 +305,10 @@ void CWindowsSystemRegisterDlg::OnBnClickedButton3()
 
 	}
 	// TODO: Add your control notification handler code here
+}
+
+
+void CWindowsSystemRegisterDlg::OnAfxIdbMiniframeMenu()
+{
+	// TODO: Add your command handler code here
 }
